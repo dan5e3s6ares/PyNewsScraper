@@ -6,7 +6,7 @@ from typing import List, Optional
 import cohere
 import pydantic
 
-os.environ["COHERE_API_KEY"] = "" < YOUR - API - KEY > ""
+os.environ["COHERE_API_KEY"] = "<YOUR-"API"-KEY>"
 
 
 class Tags(str, Enum):
@@ -116,20 +116,33 @@ class Smart:
             - Não é necessário preencher todas as categorias, apenas as que possuem informações.
             - Se a informação não estiver disponível, retorne None para todos os campos, exceto para `library_name`.
 
-        Schema Pydantic para a resposta:
-        {Resume.model_json_schema()}
+        Não seja criativo, responda somente com que for encontrado no documento.
+        Não seja criativo na formatação, responda exatamente como o schema fornecido.
+        Verifique se sua resposta está no formato JSON para que seja possível usar o comando json.loads do python, Caso não esteja, formate-a corretamente.
+
+        response_format:
+        {json.dumps(Resume.model_json_schema())}
         """
         return self.reply(prompt)
 
     def reply(self, prompt):
 
-        response = self.query(prompt).message.content[0].text
+        response = self.query(prompt)
+        response = response.message.content[0].text
         response = response.replace("```json", "")
         response = response.replace("```", "")
         response = response.replace("\n", "")
-
-        try:
-            return json.loads(response)
-        except json.JSONDecodeError:
-            print("Erro ao decodificar a resposta JSON:", response)
-            return {}
+        _response = {}
+        one_time = True
+        while len(response) > 10:
+            try:
+                _response = json.loads(response)
+                break
+            except json.JSONDecodeError:
+                if one_time:
+                    print("### COHERE retornou JSON em formato errado")
+                    print(response)
+                    print("### Tentando formatar ###")
+                    one_time = False
+                response = response[:-1]
+        return _response

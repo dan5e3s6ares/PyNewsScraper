@@ -6,33 +6,32 @@ Este Scraper utiliza IA para que não seja necessário a sua atualização const
 
 # Como utilizar
 
-Para criar um ambiente virtual, execute
-```
-python -m venv .venv
-```
+## Instalação do Docker e Docker Compose
 
-Para ativar o ambiente virtual, execute
-```
-source .venv/bin/activate
-```
+### Ubuntu
 
-Para instalar as dependências do projeto no ambiente virtual, execute
-```
-pip install -r requirements.txt
-```
+1. **Instale o Docker:**
 
-Para completar a instalação do Crawl4AI
-```
-# Install the package
-pip install -U crawl4ai
+    https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04
 
-# Run post-installation setup
-crawl4ai-setup
+2. **Instale o Docker Compose:**
 
-# Verify your installation
-crawl4ai-doctor
-```
-Crie uma chave junto a COHERE
+    https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-ubuntu-22-04
+
+
+### Windows
+
+1. **Instale o Docker:**
+
+    https://docs.docker.com/desktop/setup/install/windows-install/
+
+2. **Instale o Docker Compose:**
+
+    https://docs.docker.com/compose/install/
+
+
+### Crie uma chave junto a COHERE
+
 - https://docs.cohere.com/
 <p>
 
@@ -42,20 +41,23 @@ Atualize o valor em prompt.py
 os.environ["COHERE_API_KEY"] = "<YOUR-API-KEY>"
 ...
 ```
-Instale o Thinker
-```cmd
-sudo apt-get install python3-tk
+
+## Construa o container
+```sh
+docker compose build
 ```
 
-Para procurar por releases, execute o comando abaixo e aguarde as instruções
+## Para procurar por releases, execute o comando abaixo e aguarde as instruções
 ```
-python getNews.py releases
-```
-
-Para criar os resumos, execute
-```
-python getNews.py slides
+docker compose run --rm --remove-orphans pynews python3 /app/app/getNews.py releases
 ```
 
+## Para criar os resumos, execute
+```
+docker compose run --rm --remove-orphans pynews python3 /app/app/getNews.py slides
+```
+<p>
+<p>
+<p>
 
-Para desativar o ambiente virtual, execute `deactivate`.
+## Esse é um script que depende da COHERE AI, essa IA assim como todas as outras, ainda não apresentam comportamento estável, portanto esse script deve ser usado sob supervisão

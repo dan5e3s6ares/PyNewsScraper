@@ -4,8 +4,9 @@ import sys
 import time
 from datetime import datetime
 from json import dump
-from tkinter import messagebox
 
+from bibliotecas import bibliotecas
+from cacheVariables import pynews
 from crawl4ai import (
     AsyncWebCrawler,
     BrowserConfig,
@@ -14,9 +15,6 @@ from crawl4ai import (
     DefaultMarkdownGenerator,
     PruningContentFilter,
 )
-
-from bibliotecas import bibliotecas
-from cacheVariables import pynews
 from prompt import Smart
 
 md_generator = DefaultMarkdownGenerator(
@@ -60,7 +58,16 @@ class PyNews:
             )
             new_html = html.markdown_v2
 
-            response = Smart().answer(url_name, lib, new_html.fit_markdown)
+            response = {}
+            try:
+                response = Smart().answer(url_name, lib, new_html.fit_markdown)
+            except Exception:
+                print("$$$ COHERE AI Time Out $$$")
+                print("Biblioteca não processada :", lib["library_name"])
+                print(
+                    "Tente rodar o script novamente somente com a lib : ",
+                    lib["library_name"],
+                )
 
             release_date = response.get("release_date")
 
@@ -113,12 +120,6 @@ async def main():
         f"\033[1;37;44m\033[1;30m\n Edite o arquivo {news_json_file} \
 para adicionar as urls contendo o descritivo das novas releases \n"
     )
-    messagebox.showwarning(
-        "Aviso",
-        f"Edite o arquivo {news_json_file} para adicionar as urls contendo \
-o descritivo das novas releases",
-        icon="warning",
-    )
 
 
 async def slides():
@@ -127,8 +128,20 @@ async def slides():
     with open(news_json_file, "r", encoding="utf-8") as f:
         news.study_case = json.load(f)
     await news.get("releases_doc_url")
-    with open(news_json_file, "w", encoding="utf-8") as f:
-        dump(pynews, f)
+    slides = {}
+    try:
+        with open("pynews_slides.json", "r", encoding="utf-8") as f:
+            slides = json.load(f)
+    except Exception:
+        pass
+    for item in pynews:
+        slides[item] = pynews[item]
+    with open("pynews_slides.json", "w", encoding="utf-8") as f:
+        dump(slides, f)
+    print(
+        "\033[1;37;44m\033[1;30m\n Abra o arquivo pynews_slides.json para \
+ter acesso ao conteúdo produzido.\n"
+    )
 
 
 if __name__ == "__main__":
