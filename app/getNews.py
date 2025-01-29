@@ -1,7 +1,6 @@
 import asyncio
 import json
 import sys
-import time
 from datetime import datetime
 from json import dump
 
@@ -81,6 +80,9 @@ class PyNews:
                     pynews[lib["library_name"]] = response
             elif response.get("news"):
                 pynews[lib["library_name"]] = response
+                pynews[lib["library_name"]]["library_name"] = lib[
+                    "library_name"
+                ]
                 pynews[lib["library_name"]]["logo"] = bibliotecas[
                     lib["library_name"]
                 ]["logo"]
@@ -100,15 +102,7 @@ class PyNews:
         await asyncio.gather(*tasks)
 
     async def get(self, url_name):
-        for i in range(0, len(self.study_case), 10):
-            batch = {
-                k: self.study_case[k]
-                for k in list(self.study_case.keys())[i : i + 10]
-            }
-            await self.main_loop(url_name, list(batch.keys()))
-            time.sleep(
-                60
-            )  # O Cohere gratuíto permite somente 10 requisições por minuto
+        await self.main_loop(url_name, list(self.study_case.keys()))
 
 
 async def main():

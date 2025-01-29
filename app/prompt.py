@@ -1,12 +1,12 @@
 import json
 import os
 from enum import Enum
-from typing import List, Optional
+from typing import List
 
-import cohere
 import pydantic
+from jeannie import generate_content
 
-os.environ["COHERE_API_KEY"] = "<YOUR-"API"-KEY>"
+os.environ["COHERE_API_KEY"] = "niT0L5XZyimfgvLYhzviA3Xs11cHSNMjkwzzQ9OB"
 
 
 class Tags(str, Enum):
@@ -48,9 +48,6 @@ class Resume(pydantic.BaseModel):
 
 
 class Smart:
-    def __init__(self):
-        self.llm = cohere.ClientV2(api_key=os.environ["COHERE_API_KEY"])
-
     def answer(self, path, lib, html):
         if path == "releases_url":
             return self.find_release(lib["library_name"], html)
@@ -58,15 +55,7 @@ class Smart:
             return self.create_resume(lib, html)
 
     def query(self, prompt):
-        return self.llm.chat(
-            model="command-r-plus-08-2024",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-        )
+        return generate_content(prompt)
 
     def find_release(self, lib, html):
         prompt = f"""
@@ -120,6 +109,8 @@ class Smart:
         Não seja criativo na formatação, responda exatamente como o schema fornecido.
         Verifique se sua resposta está no formato JSON para que seja possível usar o comando json.loads do python, Caso não esteja, formate-a corretamente.
 
+        Sempre responda no idioma Português do Brasil
+
         response_format:
         {json.dumps(Resume.model_json_schema())}
         """
@@ -128,7 +119,6 @@ class Smart:
     def reply(self, prompt):
 
         response = self.query(prompt)
-        response = response.message.content[0].text
         response = response.replace("```json", "")
         response = response.replace("```", "")
         response = response.replace("\n", "")

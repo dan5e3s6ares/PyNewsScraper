@@ -30,15 +30,15 @@ Este Scraper utiliza IA para que não seja necessário a sua atualização const
     https://docs.docker.com/compose/install/
 
 
-### Crie uma chave junto a COHERE
+### Crie uma chave GEMINI API junto a Google
 
-- https://docs.cohere.com/
+- https://aistudio.google.com/
 <p>
 
-Atualize o valor em prompt.py
+Atualize o valor em jeannie.py
 ```
 ...
-os.environ["COHERE_API_KEY"] = "<YOUR-API-KEY>"
+GOOGLE_API_KEY = "<YOUR-API-KEY>"
 ...
 ```
 

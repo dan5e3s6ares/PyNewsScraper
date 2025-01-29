@@ -44,7 +44,7 @@ bibliotecas = {
     "Django": {
         "library_name": "Django",
         "releases_url": "https://pypi.org/project/Django/",
-        "logo": "https://static.djangoproject.com/img/logos/django-logo-negative.png",
+        "logo": "https://www.djangoproject.com/m/img/logos/django-logo-positive.png",
         "repository": "https://github.com/django/django",
     },
     "Seaborn": {
