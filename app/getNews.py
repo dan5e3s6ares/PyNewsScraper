@@ -1,6 +1,7 @@
 import asyncio
 import json
 import sys
+import time
 from datetime import datetime
 from json import dump
 
@@ -37,6 +38,14 @@ class PyNews:
     def __init__(self):
         self.study_case = bibliotecas.copy()
 
+    def check_for_release_url(self, lib):
+        if lib.get("fixed_release_url", None):
+            return lib["fixed_release_url"]
+        else:
+            return Smart().think_about_release_url(
+                lib["releases_urls_list"], lib["version"]
+            )
+
     async def fetch(self, lib, url_name):
         browser_config = BrowserConfig(
             browser_type="chromium",
@@ -58,23 +67,20 @@ class PyNews:
             new_html = html.markdown_v2
 
             response = {}
+            count = 3
             try:
                 response = Smart().answer(url_name, lib, new_html.fit_markdown)
-            except Exception:
-                print("$$$ COHERE AI Time Out $$$")
+            except Exception as e:
                 print("Biblioteca não processada :", lib["library_name"])
-                print(
-                    "Tente rodar o script novamente somente com a lib : ",
-                    lib["library_name"],
-                )
-
+                print(e)
             release_date = response.get("release_date")
 
             if response.get("release_date"):
                 release_date = datetime.strptime(release_date, "%Y-%m-%d")
                 if (datetime.now() - release_date).days <= 30:
-                    response["releases_doc_url"] = (
-                        "<ADICIONE AQUI A URL CONTENDO O DESCRITIVO DA RELEASE>"
+                    lib["version"] = response["version"]
+                    response["releases_doc_url"] = self.check_for_release_url(
+                        lib
                     )
                     response["library_name"] = lib["library_name"]
                     pynews[lib["library_name"]] = response
@@ -93,6 +99,14 @@ class PyNews:
                 pynews[lib["library_name"]]["releases_doc_url"] = lib[
                     "releases_doc_url"
                 ]
+                if bibliotecas[lib["library_name"]].get("fixed_release_url"):
+                    pynews[lib["library_name"]]["fixed_release_url"] = (
+                        bibliotecas[lib["library_name"]]["fixed_release_url"]
+                    )
+                else:
+                    pynews[lib["library_name"]]["releases_urls_list"] = (
+                        bibliotecas[lib["library_name"]]["releases_urls_list"]
+                    )
 
     async def main_loop(self, url_name, list_libs):
         tasks = [

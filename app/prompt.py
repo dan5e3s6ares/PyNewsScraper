@@ -109,12 +109,25 @@ class Smart:
         Não seja criativo na formatação, responda exatamente como o schema fornecido.
         Verifique se sua resposta está no formato JSON para que seja possível usar o comando json.loads do python, Caso não esteja, formate-a corretamente.
 
-        Sempre responda no idioma Português do Brasil
+        Sempre traduza para o idioma Português do Brasil
 
         response_format:
         {json.dumps(Resume.model_json_schema())}
         """
         return self.reply(prompt)
+
+    def think_about_release_url(self, releases_urls_list, new_release_version):
+        prompt = f"""
+        Faça:
+            - Analise a lista de urls fornecidas:
+                {releases_urls_list}
+            - Após a análise da lista de urls, de acordo com o padrão das urls, determine qual será a url referente a versão {new_release_version}
+            - Responda somente com a nova url prevista, não retorne nenhum outro texto.
+        """
+        response = self.query(prompt)
+        response = response.replace("`", "")
+        response = response.replace("\n", "")
+        return response
 
     def reply(self, prompt):
 

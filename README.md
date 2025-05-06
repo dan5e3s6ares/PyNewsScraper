@@ -61,3 +61,5 @@ docker compose run --rm --remove-orphans pynews python3 /app/app/getNews.py slid
 <p>
 
 ## Esse é um script que depende da COHERE AI, essa IA assim como todas as outras, ainda não apresentam comportamento estável, portanto esse script deve ser usado sob supervisão
+
+## DeepSeek "This model's maximum context length is 65536 tokens"

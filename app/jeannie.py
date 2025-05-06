@@ -1,14 +1,17 @@
-import google.generativeai as genai
+from openai import OpenAI
 
-GOOGLE_API_KEY = "<YOUR-API-KEY>"
-
-genai.configure(api_key=GOOGLE_API_KEY)
-
-model = genai.GenerativeModel("gemini-1.5-flash")
+client = OpenAI(
+    api_key="<YOUR API KEY>",
+    base_url="https://api.deepseek.com",
+)
 
 
 def generate_content(prompt):
 
-    response = model.generate_content(prompt)
+    response = client.chat.completions.create(
+        model="deepseek-chat",
+        messages=[{"role": "user", "content": prompt}],
+        stream=False,
+    )
 
-    return response.text
+    return response.choices[0].message.content

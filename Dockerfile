@@ -1,10 +1,12 @@
-FROM ubuntu:22.04
+FROM python:3.12.2-slim as builder
 
-ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    python3-pip \
-    python3.10 \
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc \
     tzdata && \
     ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && \
     dpkg-reconfigure --frontend noninteractive tzdata && \
@@ -14,9 +16,17 @@ RUN apt-get update && apt-get install -y \
     playwright install && \
     playwright install-deps
 
+COPY requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+
+# final stage
+FROM python:3.12.2-slim
+
 WORKDIR /app
 
-COPY ./app/. .
-COPY requirements.txt .
-
-RUN pip3 install -r requirements.txt
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/requirements.txt .
+RUN pip install --no-cache /wheels/*
+RUN playwright install
+RUN playwright install-deps
